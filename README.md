@@ -1,2 +1,2 @@
-# mb-more-stats
-A work-in-progress statistics plugin for MusicBee
+# mb_unzipped
+A plugin that allows MusicBee to unzip archives from a specified folder
