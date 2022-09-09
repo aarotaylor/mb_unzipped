@@ -24,6 +24,7 @@ STATE:
 TODO:
     checkbox for delete zip after unzip
     second textbox for destination path to move archive after unzip
+    add error handling for path not found exception
 
 REFACTOR:
     use OpenFileDialog or similar for path selection
@@ -37,7 +38,7 @@ namespace MusicBeePlugin
         private MusicBeeApiInterface mbApiInterface;
         private PluginInfo about = new PluginInfo();
         public TextBox pathBox = new TextBox();
-        public CheckBox deleteZip = new CheckBox();
+        public CheckBox deleteZip = new CheckBox(); // for deletion
         public TextBox destination = new TextBox();
         public string zipPath = "";
 
@@ -164,7 +165,7 @@ namespace MusicBeePlugin
                     {
                         string readText = File.ReadAllText(dataPath + "/Unzipped.info");
                         pathBox.Text = readText;
-                        sendText(readText);
+                        //sendText(readText);
                     }
                     else
                     {
@@ -211,28 +212,62 @@ namespace MusicBeePlugin
             }
         }
 
+        public string readData(int line) 
+        {
+            string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
+            if (File.Exists(dataPath + "/Unzipped.info"))
+            {
+                string readText = File.ReadAllText(dataPath + "/Unzipped.info");
+                
+                if (readText != "\r\n")
+                {
+                    string[] readLines = File.ReadAllLines(dataPath + "/Unzipped.info");
+                    sendText(readLines[line]);
+                    return readLines[line];
+                }
+            }
+            return "";
+        }
+
+        // Unzip files, and either delete or move the original file
         private void unzip(object sender, EventArgs args) {
-            string inbox = "F:\\Music\\_Inbox_";
+            string inbox = readData(0); // "F:\\_Inbox_";
+            bool checkbox = bool.Parse(readData(1));
+            string dest = readData(2);
 
             DirectoryInfo d = new DirectoryInfo(inbox);
             FileInfo[] Files = d.GetFiles();
             int zipCount = 0;
             int fileCount = 0;
-            /*
+            ///*
             foreach (FileInfo file in Files)
             {
                 if (file.Name.Contains(".zip"))
                 {
+                    //sendText(file.FullName);
                     zipCount++;
-                    ZipFile.ExtractToDirectory(file.FullName, inbox);
+                    // ZipFile.ExtractToDirectory(file.FullName, inbox);
                     fileCount += countFiles(file.FullName);
 
+                    // After each archive has been unzipped, move it to the destination or delete it
+                    if (checkbox)
+                    {
+
+                    }
+                    // move
+                    else
+                    {
+                        sendText(dest + "\\" + file.FullName);
+                        File.Move(file.FullName, dest + "\\" + file.Name);
+                    }
+
                 }
+               
             }
             
-            sendText(zipCount + " .zip files were unzipped resulting in " + fileCount + " new files in the inbox.");
-            */
-            sendText(mbApiInterface.Setting_GetPersistentStoragePath());
+            //sendText(zipCount + " .zip files were unzipped resulting in " + fileCount + " new files in the inbox.");
+            //*/
+            
 
 
             /*/ TODO
