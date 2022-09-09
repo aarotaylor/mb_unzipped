@@ -81,6 +81,7 @@ namespace MusicBeePlugin
                 prompt.AutoSize = true;
                 prompt.Location = new Point(0, 0);
                 prompt.Text = "File Path for Archives";
+
                 pathBox = new TextBox();
                 pathBox.Bounds = new Rectangle(60, 0, 200, pathBox.Height);
                 pathBox.Location = new Point(0, 20);
@@ -91,12 +92,21 @@ namespace MusicBeePlugin
                 destination = new TextBox();
                 destination.Bounds = new Rectangle(60, 0, 200, pathBox.Height);
                 destination.Location = new Point(0, 70);
+
                 configPanel.Controls.AddRange(new Control[] { prompt, pathBox, destination, deleteZip });
                 if (File.Exists(dataPath + "/Unzipped.info"))
                 {
                     string readText = File.ReadAllText(dataPath + "/Unzipped.info");
-                    pathBox.Text = readText;
-                    sendText(pathBox.Text);
+                    sendText("THESE ARE THE CONTENTS: " + readText + "|");
+                    if (readText != "\r\n")
+                    {
+                        string[] readLines = File.ReadAllLines(dataPath + "/Unzipped.info");
+                        pathBox.Text = readLines[0];
+                        deleteZip.Checked = bool.Parse(readLines[1]);
+                        destination.Text = readLines[2];
+                        sendText(pathBox.Text);
+                    }
+                    
                 }
             }
             return true;
@@ -112,7 +122,8 @@ namespace MusicBeePlugin
             // On save, take the value in pathBox, deleteZip, and destination and save them to Unzipped.info
             using (StreamWriter writer = new StreamWriter(dataPath+"/Unzipped.info"))
             {
-                writer.WriteLine(pathBox.Text);
+                string contents = pathBox.Text + "\n" + deleteZip.Checked + "\n" + destination.Text+"\n";
+                writer.WriteLine(contents);
             }
         }
 
