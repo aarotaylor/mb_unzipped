@@ -1,0 +1,8 @@
+G:\Musicbee Testing\mb-unzipped\bin\Debug\Auto_Quality.cs
+G:\Musicbee Testing\mb-unzipped\bin\Debug\mb_AutoQuality.dll
+G:\Musicbee Testing\mb-unzipped\bin\Debug\mb_AutoQuality.pdb
+G:\Musicbee Testing\mb-unzipped\bin\Debug\lastfm-sharp.dll
+G:\Musicbee Testing\mb-unzipped\obj\Debug\Auto_Quality.csproj.CopyComplete
+G:\Musicbee Testing\mb-unzipped\obj\Debug\mb_AutoQuality.dll
+G:\Musicbee Testing\mb-unzipped\obj\Debug\mb_AutoQuality.pdb
+G:\Musicbee Testing\mb-unzipped\obj\Debug\Auto_Quality.csprojAssemblyReference.cache

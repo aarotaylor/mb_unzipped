@@ -1,0 +1,6 @@
+.git/
+.vs/
+bin/Debug
+config.ini
+app.config
+app.settings
