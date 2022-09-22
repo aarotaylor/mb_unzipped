@@ -20,11 +20,13 @@ using System.Net;
 STATE:
     path can be entered in the plugin panel, and is saved to the persistentStoragePath
     path is persistent in the plugin panel
-
-TODO:
     checkbox for delete zip after unzip
     second textbox for destination path to move archive after unzip
+    deletion is enabled when the checkbox is checked
+
+TODO:
     add error handling for path not found exception
+    add description for the delete checkbox and destination textbox
 
 REFACTOR:
     use OpenFileDialog or similar for path selection
@@ -89,12 +91,24 @@ namespace MusicBeePlugin
 
                 deleteZip = new CheckBox();
                 deleteZip.Location = new Point(0, 40);
+                // change back color
+
+                Label delete = new Label();
+                delete.AutoSize = true;
+                delete.Location = new Point(10, 40);
+                delete.Text = "Delete after unzipping";
+
+                Label dest = new Label();
+                dest.AutoSize = true;
+                dest.Location = new Point(0, 50);
+                dest.Text = "Destination for the archive";
 
                 destination = new TextBox();
                 destination.Bounds = new Rectangle(60, 0, 200, pathBox.Height);
                 destination.Location = new Point(0, 70);
 
                 configPanel.Controls.AddRange(new Control[] { prompt, pathBox, destination, deleteZip });
+
                 if (File.Exists(dataPath + "/Unzipped.info"))
                 {
                     string readText = File.ReadAllText(dataPath + "/Unzipped.info");
@@ -120,7 +134,7 @@ namespace MusicBeePlugin
             // save any persistent settings in a sub-folder of this path
             string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
 
-            // On save, take the value in pathBox, deleteZip, and destination and save them to Unzipped.info
+            // On save, %if both filepaths are valid% take the value in pathBox, deleteZip, and destination and save them to Unzipped.info
             using (StreamWriter writer = new StreamWriter(dataPath+"/Unzipped.info"))
             {
                 string contents = pathBox.Text + "\n" + deleteZip.Checked + "\n" + destination.Text+"\n";
@@ -246,13 +260,14 @@ namespace MusicBeePlugin
                 {
                     //sendText(file.FullName);
                     zipCount++;
-                    // ZipFile.ExtractToDirectory(file.FullName, inbox);
+                    ZipFile.ExtractToDirectory(file.FullName, inbox);
                     fileCount += countFiles(file.FullName);
 
                     // After each archive has been unzipped, move it to the destination or delete it
-                    if (checkbox)
+                    if (checkbox) // delete
                     {
-
+                        File.Delete(file.FullName);
+                        sendText(file.Name + " has been deleted");
                     }
                     // move
                     else
