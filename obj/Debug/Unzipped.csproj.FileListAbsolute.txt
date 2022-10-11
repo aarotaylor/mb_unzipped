@@ -16,3 +16,4 @@ G:\Musicbee Testing\mb_unzipped\obj\Debug\Unzipped.csproj.GenerateResource.cache
 G:\Musicbee Testing\mb_unzipped\obj\Debug\Unzipped.csproj.CopyComplete
 G:\Musicbee Testing\mb_unzipped\obj\Debug\mb_AutoQuality.dll
 G:\Musicbee Testing\mb_unzipped\obj\Debug\mb_AutoQuality.pdb
+G:\Musicbee Testing\mb_unzipped\obj\Debug\Unzipped.csprojAssemblyReference.cache

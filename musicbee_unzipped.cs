@@ -29,7 +29,7 @@ TODO:
     add description for the delete checkbox and destination textbox
 
 REFACTOR:
-    use OpenFileDialog or similar for path selection
+    use FolderBrowserDialogue or similar for path selection
  
 */
 
@@ -39,9 +39,22 @@ namespace MusicBeePlugin
     {
         private MusicBeeApiInterface mbApiInterface;
         private PluginInfo about = new PluginInfo();
+        /*
         public TextBox pathBox = new TextBox();
-        public CheckBox deleteZip = new CheckBox(); // for deletion
+        
         public TextBox destination = new TextBox();
+        
+        public Label dest = new Label();
+        */
+        Button dialog = new Button();
+        Button dialog2 = new Button();
+        FolderBrowserDialog folderDlg1 = new FolderBrowserDialog();
+        FolderBrowserDialog folderDlg2 = new FolderBrowserDialog();
+        Label archives = new Label();
+        Label dest = new Label();
+        public CheckBox deleteZip = new CheckBox(); // for deletion
+        public Label delete = new Label();
+        //public ListDirec;
         public string zipPath = "";
 
         // CALL NEWLY MADE FUNCTIONS HERE SO THEY WILL EXECUTE
@@ -61,7 +74,7 @@ namespace MusicBeePlugin
             about.MinInterfaceVersion = 30;
             about.MinApiRevision = 40;
             about.ReceiveNotifications = (ReceiveNotificationFlags.PlayerEvents | ReceiveNotificationFlags.TagEvents);
-            about.ConfigurationPanelHeight = 100;   // height in pixels that musicbee should reserve in a panel for config settings. When set, a handle to an empty panel will be passed to the Configure function
+            about.ConfigurationPanelHeight = 190;   // height in pixels that musicbee should reserve in a panel for config settings. When set, a handle to an empty panel will be passed to the Configure function
 
             createMenuItem();
             return about;
@@ -78,6 +91,8 @@ namespace MusicBeePlugin
             if (panelHandle != IntPtr.Zero)
             {
                 string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
+                
+                //DialogResult result = folderDlg.ShowDialog();
 
                 Panel configPanel = (Panel)Panel.FromHandle(panelHandle);
                 Label prompt = new Label();
@@ -85,41 +100,53 @@ namespace MusicBeePlugin
                 prompt.Location = new Point(0, 0);
                 prompt.Text = "File Path for Archives";
 
-                pathBox = new TextBox();
-                pathBox.Bounds = new Rectangle(60, 0, 200, pathBox.Height);
-                pathBox.Location = new Point(0, 20);
+                dialog = new Button();
+                dialog.Location = new Point(0, 30);
+                dialog.Text = "Archive Directory";
+                dialog.AutoSize = true;
+                dialog.Click += new EventHandler(dialogButton_Click);
 
-                deleteZip = new CheckBox();
-                deleteZip.Location = new Point(0, 40);
+                archives = new Label();
+                archives.AutoSize = true;
+                archives.Location = new Point(0, 60);
+                archives.Text = "Set the directory";
+
+                dialog2 = new Button();
+                dialog2.Location = new Point(0, 90);
+                dialog2.Text = "Destination Directory";
+                dialog2.AutoSize = true;
+                dialog2.Click += new EventHandler(dialogButton_Click);
+
+                dest = new Label();
+                dest.AutoSize = true;
+                dest.Location = new Point(0, 120);
+                dest.Text = "Set the directory";
+
+
+                
+                //deleteZip = new CheckBox();
+                deleteZip.Location = new Point(0, 140);
                 // change back color
 
-                Label delete = new Label();
+               //Label delete = new Label();
                 delete.AutoSize = true;
-                delete.Location = new Point(10, 40);
+                delete.Location = new Point(0, 165);
                 delete.Text = "Delete after unzipping";
 
-                Label dest = new Label();
-                dest.AutoSize = true;
-                dest.Location = new Point(0, 50);
-                dest.Text = "Destination for the archive";
+                configPanel.Controls.AddRange(new Control[] { prompt, dialog, archives, dialog2, dest, deleteZip, delete});
 
-                destination = new TextBox();
-                destination.Bounds = new Rectangle(60, 0, 200, pathBox.Height);
-                destination.Location = new Point(0, 70);
-
-                configPanel.Controls.AddRange(new Control[] { prompt, pathBox, destination, deleteZip });
-
+                // Read save data
                 if (File.Exists(dataPath + "/Unzipped.info"))
                 {
                     string readText = File.ReadAllText(dataPath + "/Unzipped.info");
-                    sendText("THESE ARE THE CONTENTS: " + readText + "|");
+                    //sendText("THESE ARE THE CONTENTS: " + readText + "|");
                     if (readText != "\r\n")
                     {
                         string[] readLines = File.ReadAllLines(dataPath + "/Unzipped.info");
-                        pathBox.Text = readLines[0];
+                        archives.Text = readLines[0];
                         deleteZip.Checked = bool.Parse(readLines[1]);
-                        destination.Text = readLines[2];
-                        sendText(pathBox.Text);
+                        dest.Text = readLines[2];
+                        //sendText(pathBox.Text);
                     }
                     
                 }
@@ -134,12 +161,32 @@ namespace MusicBeePlugin
             // save any persistent settings in a sub-folder of this path
             string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
 
+              
             // On save, %if both filepaths are valid% take the value in pathBox, deleteZip, and destination and save them to Unzipped.info
-            using (StreamWriter writer = new StreamWriter(dataPath+"/Unzipped.info"))
+            using (StreamWriter writer = new StreamWriter(dataPath + "/Unzipped.info"))
             {
-                string contents = pathBox.Text + "\n" + deleteZip.Checked + "\n" + destination.Text+"\n";
+                string contents = archives.Text + "\n" + deleteZip.Checked + "\n" + dest.Text + "\n";
                 writer.WriteLine(contents);
             }
+            
+
+            
+        }
+
+        // button function
+        private void dialogButton_Click(object sender, EventArgs e)
+        {
+            if (sender.ToString().Contains("Archive"))
+            {
+                DialogResult result = folderDlg1.ShowDialog();
+                archives.Text = folderDlg1.SelectedPath;
+            }
+            else
+            {
+                DialogResult result = folderDlg2.ShowDialog();
+                dest.Text = folderDlg2.SelectedPath;
+            }
+            
         }
 
         // MusicBee is closing the plugin (plugin is being disabled by user or MusicBee is shutting down)
@@ -178,7 +225,7 @@ namespace MusicBeePlugin
                     if (File.Exists(dataPath+ "/Unzipped.info"))
                     {
                         string readText = File.ReadAllText(dataPath + "/Unzipped.info");
-                        pathBox.Text = readText;
+                        //pathBox.Text = readText;
                         //sendText(readText);
                     }
                     else
@@ -226,6 +273,7 @@ namespace MusicBeePlugin
             }
         }
 
+        // read Unzipped.info
         public string readData(int line) 
         {
             string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
